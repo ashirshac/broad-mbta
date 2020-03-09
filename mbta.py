@@ -253,13 +253,12 @@ class Mbta():
             # Look for stop_name anywhere in stop name text
             #if k.startswith(stop_name):  # key: 12345|StationName
             if stop_name in k:   # key: 12345|StationName
-
                 stop_id = k.split('|')[0]
                 route = k.split('|')[2]
                 #TODO could inspect for diretion
                 # Taking 1st key
-                if self.verbose_mode:
-                    print('Found key for stop_name: {} / {}'.format(k, stop_id))
+                #if self.verbose_mode:
+                print('Found key for stop_name: {} / {}'.format(k, stop_id))
                 break
 
         if self.verbose_mode:
@@ -484,11 +483,15 @@ class Mbta():
         #Structure:
 
         params = {'filter[type]':'0,1', 'include':'route_patterns' }
+        #params = {'filter[type]':'0,1', 'include':'route' }
+        #params = {'include':'route_patterns' }
         # line,route_patterns
 
         route_filter = params
 
         resp = self.request_api(self.endpoint_routes, route_filter, self.verbose_mode)
+        #TODO switchize:
+        with open('csvs/get_route_trip_ids_dict.json', 'w') as file_writer: file_writer.write(resp.text)
 
         # parse json list of dicts
         df = pd.DataFrame( resp.json()['included'] )
@@ -526,7 +529,7 @@ class Mbta():
         stop
         line
         route_patterns
-        The value of the include parameter MUST be a comma-separated (U+002C COMMA, “,”) list of relationship paths. A relationship path is a dot-separated (U+002E FULL-STOP, “.”) list of relationship names. JSONAPI “include” behavior
+        The value of the include parameter MUST be a comma-separated (U+002C COMMA, “,”) list of relationship paths. A relationship path is a dot-separated (U+002E FULL-STOP, “.”) list of relationship names.
 
         include=stop only works when filter[stop] is also used
 
