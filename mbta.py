@@ -144,11 +144,18 @@ class Mbta():
         from_st, to_st = self.get_input_stations_for_trip(self.in_file)
         print('\nQuestion 3 \nFrom station: {}, To station: {}'.format(from_st, to_st))
 
-        from_stop_id, from_stop_route = self.get_stop_id_from_places_routes(from_st)
-        to_stop_id, to_stop_route = self.get_stop_id_from_places_routes(to_st)
+        from_stop_id, from_route, from_stop_line_direction = self.get_stop_id_from_places_routes(from_st)
+        to_stop_id, to_stop_route, to_stop_line_direction  = self.get_stop_id_from_places_routes(to_st
+                                                                                                 , from_stop_line_direction)
 
-        print('\nFrom stop_nm: {}, from_stop_id: {}, from_stop_route: {}'.format(from_st, from_stop_id, from_stop_route))
-        print('To stop_nm: {}, to_stop_id: {}, to_stop_route: {}'.format(to_st, to_stop_id, to_stop_route))
+        print('\nFrom stop_nm: {}, from_stop_id: {}, from_stop_route: {}, line_dir: {}'.format(from_st
+                                                                                               , from_stop_id
+                                                                                               , from_route
+                                                                                               , from_stop_line_direction))
+        print('To stop_nm: {}, to_stop_id: {}, to_stop_route: {}, line_dir: {}'.format(to_st
+                                                                                       , to_stop_id
+                                                                                       , to_stop_route
+                                                                                       , to_stop_line_direction))
 
         #TODO  alter print
 
@@ -243,28 +250,44 @@ class Mbta():
         #print('get_stop_name_from_places_routes Found stop_name for id: {} / {}, route:{}'.format(stop_name, stop_id, route))
         return stop_name
 
-    def get_stop_id_from_places_routes(self, stop_name):
+    def get_stop_id_from_places_routes(self, stop_name, line_direction=None):
         # Given a stop_name, find the stop_id
 
+        #print('Passed line_direction: {}'.format(line_direction))
         stop_id = None
         route = None
         # Look in stops_places_route_dict for name of stop. Get stop id
         for k in self.stops_places_routes_dict.keys():
             # Look for stop_name anywhere in stop name text
             #if k.startswith(stop_name):  # key: 12345|StationName
-            if stop_name in k:   # key: 12345|StationName
+            if stop_name in k:   # key: 12345|Red Line - Ashmont/Braintree
                 stop_id = k.split('|')[0]
+                place_line_dir = k.split('|')[1]
+
+                # line_direction e.g., 'Davis - Red Line - Ashmont/Braintree'. We want 'Red Line - Ashmont/Braintree'
+                place_line_dir = place_line_dir.split(' - ',1)[1] # Drop the front part, keep the back
+
                 route = k.split('|')[2]
-                #TODO could inspect for diretion
-                # Taking 1st key
-                #if self.verbose_mode:
-                print('Found key for stop_name: {} / {}'.format(k, stop_id))
-                break
+                if line_direction is None:
+                    # accept this route
+                    #TODO could inspect for diretion
+                    # Taking 1st key
+                    #if self.verbose_mode:
+                    print('Found key for stop_name: {} / {}, place_line_dir: {}'.format(k, stop_id, place_line_dir))
+                    break
+                elif place_line_dir == line_direction:
+                    print('Found matching line_direction: {}'.format(line_direction))
+                else:
+                    print('Error routes do not match this found place_line_dir: {}, line_direction: {}'.format(place_line_dir, line_direction))
 
-        if self.verbose_mode:
-            print('get_stop_id_from_places_routes Found id for stop_name: {} / {}, route:{}'.format(stop_name, stop_id, route))
 
-        return stop_id, route
+        #if self.verbose_mode:
+        print('get_stop_id_from_places_routes Found id for stop_name: {} / {}, route:{}, line_direction: {}'.format(stop_name
+                                                                                                                    , stop_id
+                                                                                                                    , route
+                                                                                                                    , place_line_dir))
+
+        return stop_id, route, place_line_dir
 
 
     def get_stop_info_for_connecting_stops_via_list(self):
