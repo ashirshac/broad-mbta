@@ -1,0 +1,9 @@
+#Input in format: from='starting stop', to='ending stop'. 1 of either per line.
+#Lines starting with '#' are ignored
+#from=Davis
+#to=Kendall
+#from=Malden Center
+#to=Assembly
+from=Davis
+to=Broadway
+#to=Wollastan
