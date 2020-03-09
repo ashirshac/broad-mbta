@@ -52,7 +52,7 @@ class Mbta():
         self.stop_route_dict = {}
 
         self.csv_dir = 'csvs'
-        if self.csv_write and not os.path.exists(self.csv_dir):
+        if not os.path.exists(self.csv_dir):
             os.makedirs(self.csv_dir)
 
     # Question 1 - get the subway routes and display on console.
@@ -551,7 +551,8 @@ class Mbta():
         resp = self.request_api( stop_endpoint, params, self.verbose_mode)
 
         #TODO decide to parameterize/switchable
-        with open('csvs/get_stop_info_{}.json'.format(stop_id), 'w') as file_writer: file_writer.write(json.dumps(resp.json()))
+        if self.csv_write:
+            with open('csvs/get_stop_info_{}.json'.format(stop_id), 'w') as file_writer: file_writer.write(json.dumps(resp.json()))
 
         # parse json list of dicts
         df = pd.DataFrame( resp.json()['data'] )
